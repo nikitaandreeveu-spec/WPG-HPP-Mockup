@@ -46,6 +46,9 @@ router.post('/create-order', async (req, res) => {
   const firstName = nameParts[0] || '';
   const lastName = nameParts.slice(1).join(' ') || '';
 
+  // Truncate fields to Worldpay's maximum lengths
+  const truncate = (str, maxLength) => str ? str.substring(0, maxLength) : '';
+
   // Prepare Worldpay HPP API request body
   const worldpayRequest = {
     transactionReference: orderId,
@@ -61,11 +64,11 @@ router.post('/create-order', async (req, res) => {
     },
     description: 'Dutch Cheese Purchase',
     billingAddress: {
-      firstName: firstName,
-      lastName: lastName,
-      address1: customerInfo.address,
-      city: customerInfo.city,
-      postalCode: customerInfo.postalCode,
+      firstName: truncate(firstName, 22),
+      lastName: truncate(lastName, 22),
+      address1: truncate(customerInfo.address, 100),
+      city: truncate(customerInfo.city, 50),
+      postalCode: truncate(customerInfo.postalCode, 10),
       countryCode: customerInfo.country
     },
     resultURLs: {
